@@ -6,6 +6,6 @@
   
 
 ## UPDATES
-  * Background and basic setup finished next update is at wednesday stay tuned
+  * Game is %60 completed
   * Repository deleted and created again
   * Repository arranged properly
