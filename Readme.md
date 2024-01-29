@@ -9,3 +9,5 @@
   * Game is %60 completed
   * Repository deleted and created again
   * Repository arranged properly
+  * i will update everything by tuesday 5 am
+ 
