@@ -2,6 +2,8 @@ import os
 import random
 import math
 import pygame
+from pygame.locals import *
+import sys
 from os import listdir
 from os.path import isfile, join
 pygame.init()
@@ -11,8 +13,15 @@ pygame.display.set_caption("Platformer")
 WIDTH, HEIGHT = 1000, 800
 FPS = 60
 PLAYER_VEL = 5
+volume = 50
+volume_change_rate = 5
 
 window = pygame.display.set_mode((WIDTH, HEIGHT))
+
+
+options = ["Start", "Options", "Quit"]
+selected_option = 0  # Index of the currently selected option
+font = pygame.font.Font(None, 36)
 
 
 def flip(sprites):
@@ -53,11 +62,22 @@ def get_block(size):
     return pygame.transform.scale2x(surface)
 
 
+
+def draw_main_menu(window, selected_option):
+    # Yeni arka plan resmini yükleyin
+    background_image = pygame.image.load(join("assets", "main_menu_bg.png")).convert()
+    window.blit(background_image, (0, 0))
+    pygame.display.flip()
+
+
 class Player(pygame.sprite.Sprite):
     COLOR = (255, 0, 0)
     GRAVITY = 1
     SPRITES = load_sprite_sheets("MainCharacters", "MaskDude", 32, 32, True)
     ANIMATION_DELAY = 3
+    MAX_HEALTH = 3
+    HEALTH_BAR_WIDTH = 50
+    HEALTH_BAR_HEIGHT = 10
 
     def __init__(self, x, y, width, height):
         super().__init__()
@@ -71,6 +91,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
+        self.health = self.MAX_HEALTH
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
@@ -84,7 +105,16 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += dy
 
     def make_hit(self):
-        self.hit = True
+        if not self.hit:
+            self.health -= 1
+            self.hit = True
+            self.hit_count = 0
+            if self.health <= 0:
+                print("Game Over")
+
+    def heal(self):
+        if self.health < self.MAX_HEALTH:
+            self.health += 1
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -148,6 +178,111 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, win, offset_x):
         win.blit(self.sprite, (self.rect.x - offset_x, self.rect.y))
+        self.draw_health_bar(win, offset_x)
+
+    def draw_health_bar(self, win, offset_x):
+        bar_width = int((self.health / self.MAX_HEALTH) * self.HEALTH_BAR_WIDTH)
+        pygame.draw.rect(win, (0, 255, 0), (self.rect.x - offset_x, self.rect.y - 20, bar_width, self.HEALTH_BAR_HEIGHT))
+        pygame.draw.rect(win, (255, 0, 0), (self.rect.x - offset_x + bar_width, self.rect.y - 20, self.HEALTH_BAR_WIDTH - bar_width, self.HEALTH_BAR_HEIGHT))
+
+
+def main_menu():
+    options = ["start", "options", "quit"]
+    selected_option = 0
+
+    while True:
+        window.fill((0, 0, 0))  # Fill the window with black
+
+        # Draw menu text
+        font = pygame.font.Font(None, 36)
+
+        for i, option in enumerate(options):
+            text = font.render(f"{i + 1}. {option.capitalize()}", True, (255, 255, 255))
+            text_position = (WIDTH // 2 - text.get_width() // 2, HEIGHT // 4 + i * 50)
+
+            # Highlight the selected option
+            if i == selected_option:
+                pygame.draw.rect(window, (255, 0, 0), (text_position[0] - 10, text_position[1], text.get_width() + 20, text.get_height()))
+
+            window.blit(text, text_position)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == KEYDOWN:
+                if event.key == K_UP:
+                    selected_option = (selected_option - 1) % len(options)
+                elif event.key == K_DOWN:
+                    selected_option = (selected_option + 1) % len(options)
+                elif event.key == K_RETURN:
+                    return options[selected_option]
+
+
+
+
+def options_menu():
+    options = ["Volume", "Fullscreen", "Back"]
+    selected_option = 0
+    volume = 50
+    fullscreen = False
+
+    while True:
+        window.fill((0, 0, 0))  # Fill the window with black
+
+        # Draw menu text
+        font = pygame.font.Font(None, 36)
+
+        for i, option in enumerate(options):
+            text = font.render(option, True, (255, 255, 255))
+            text_position = (WIDTH // 2 - text.get_width() // 2, HEIGHT // 4 + i * 50)
+
+            # Highlight the selected option
+            if i == selected_option:
+                pygame.draw.rect(window, (255, 0, 0), (text_position[0] - 10, text_position[1], text.get_width() + 20, text.get_height()))
+
+            window.blit(text, text_position)
+
+        # Display volume and fullscreen status
+        volume_text = font.render(f"Volume: {volume}", True, (255, 255, 255))
+        volume_position = (WIDTH // 2 - volume_text.get_width() // 2, HEIGHT // 2)
+        window.blit(volume_text, volume_position)
+
+        fullscreen_text = font.render(f"Fullscreen: {'On' if fullscreen else 'Off'}", True, (255, 255, 255))
+        fullscreen_position = (WIDTH // 2 - fullscreen_text.get_width() // 2, HEIGHT // 2 + 50)
+        window.blit(fullscreen_text, fullscreen_position)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == KEYDOWN:
+                if event.key == K_UP:
+                    selected_option = (selected_option - 1) % len(options)
+                elif event.key == K_DOWN:
+                    selected_option = (selected_option + 1) % len(options)
+                elif event.key == K_RETURN:
+                    if options[selected_option] == "Back":
+                        return
+                    elif options[selected_option] == "Volume":
+                        # Increase volume
+                        volume = min(100, volume + 10)
+                        print(f"Volume increased to {volume}")
+                    elif options[selected_option] == "Volume" and event.key == K_BACKSPACE:
+                        # Decrease volume using BACKSPACE
+                        volume = max(0, volume - 10)
+                        print(f"Volume decreased to {volume}")
+                    elif options[selected_option] == "Fullscreen":
+                        # Toggle fullscreen
+                        fullscreen = not fullscreen
+                        pygame.display.set_mode((WIDTH, HEIGHT), FULLSCREEN if fullscreen else 0)
+                        print(f"Fullscreen {'enabled' if fullscreen else 'disabled'}")
 
 
 class Object(pygame.sprite.Sprite):
@@ -294,6 +429,43 @@ def main(window):
     offset_x = 0
     scroll_area_width = 200
 
+    options = ["Start", "Options", "Quit"]
+    selected_option = 0
+
+    def draw_main_menu():
+        # Implement your main menu drawing logic here
+        # You can use pygame functions to draw menu items and highlight the selected one
+        pass
+
+    main_menu = True
+
+    while main_menu:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    selected_option = (selected_option + 1) % len(options)
+                elif event.key == pygame.K_UP:
+                    selected_option = (selected_option - 1) % len(options)
+                elif event.key == pygame.K_RETURN:
+                    if options[selected_option] == "Start":
+                        print("Starting the game...")
+                        main_menu = False  # Exit the main menu loop
+                    elif options[selected_option] == "Options":
+                        print("Opening options menu...")
+                        # You can call your options menu function here
+                    elif options[selected_option] == "Quit":
+                        pygame.quit()
+                        quit()
+
+        draw_main_menu()
+
+    # Main game loop starts here
     run = True
     while run:
         clock.tick(FPS)
@@ -306,6 +478,9 @@ def main(window):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and player.jump_count < 2:
                     player.jump()
+
+                if event.key == pygame.K_h:
+                    player.heal()
 
         player.loop(FPS)
         fire.loop()
@@ -321,4 +496,15 @@ def main(window):
 
 
 if __name__ == "__main__":
-    main(window)
+    pygame.init()
+    window = pygame.display.set_mode((WIDTH, HEIGHT))
+    
+    choice = main_menu()
+
+    if choice == "start":
+        main(window)
+    elif choice == "options":
+        options_menu()
+    elif choice == "quit":
+        pygame.quit()
+        sys.exit()
