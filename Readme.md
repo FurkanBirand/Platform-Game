@@ -7,7 +7,8 @@
 
 ## UPDATES
   * Game is %65 completed
-  * Created a main menu
+  * Created a boss class
+  * Created a main menu    
   * ![image](https://github.com/FurkanBirand/Platform-Game/assets/150913417/4d0b6ca9-b641-439c-8f92-de450645b8ba)
 
   * Created an options menu
