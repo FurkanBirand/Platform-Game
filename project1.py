@@ -185,26 +185,6 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(win, (0, 255, 0), (self.rect.x - offset_x, self.rect.y - 20, bar_width, self.HEALTH_BAR_HEIGHT))
         pygame.draw.rect(win, (255, 0, 0), (self.rect.x - offset_x + bar_width, self.rect.y - 20, self.HEALTH_BAR_WIDTH - bar_width, self.HEALTH_BAR_HEIGHT))
 
-class Boss(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
-        super().__init__()
-        self.rect = pygame.Rect(x, y, width, height)
-        self.image = pygame.Surface((width, height))
-        self.image.fill((255, 0, 0))  # Boss karakterinin rengi
-        self.mask = pygame.mask.from_surface(self.image)
-        self.health = 100  # Boss'un sağlığı
-        self.attack_damage = 10  # Boss'un oyuncuya verdiği saldırı hasarı
-
-    def update(self):
-        # Boss karakterinin güncellendiği yer
-        pass  # Henüz boss hareketi veya durumu için bir güncelleme yok
-
-    def draw(self, window, offset_x):
-        window.blit(self.image, (self.rect.x - offset_x, self.rect.y))  # Boss karakterini çizmek için kullanılıyor
-
-
-
-
 
 def main_menu():
     options = ["start", "options", "quit"]
@@ -447,9 +427,9 @@ def main(window):
                Block(block_size * 3, HEIGHT - block_size * 4, block_size), fire]
     
 
-    boss = Boss(500, 100, 100, 100)  # Boss karakterini ekleyin
+   
 
-    boss_spawned = False
+    
 
     offset_x = 0
     scroll_area_width = 200
