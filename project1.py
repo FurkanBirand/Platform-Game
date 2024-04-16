@@ -163,6 +163,23 @@ class Object(pygame.sprite.Sprite):
         win.blit(self.image, (self.rect.x - offset_x, self.rect.y))
 
 
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self,x,y,width,height):
+        super().__init__()
+        self.rect = pygame.Rect(x, y, width, height)
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0,255,0))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.vel = 2
+
+        def update(self):
+            self.rect.x += self.vel
+
+        def draw (self, win, offset_x):
+            win.blit(self.image,(self.rect.x - offset_x, self.rect.y))
+
+
+
 class Block(Object):
     def __init__(self, x, y, size):
         super().__init__(x, y, size, size)
