@@ -72,6 +72,7 @@ class Player(pygame.sprite.Sprite):
         self.hit = False
         self.hit_count = 0
 
+
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
         self.animation_count = 0
@@ -83,8 +84,11 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
 
-    def make_hit(self):
-        self.hit = True
+
+
+
+
+
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -142,6 +146,8 @@ class Player(pygame.sprite.Sprite):
         self.animation_count += 1
         self.update()
 
+
+
     def update(self):
         self.rect = self.sprite.get_rect(topleft=(self.rect.x, self.rect.y))
         self.mask = pygame.mask.from_surface(self.sprite)
@@ -163,20 +169,6 @@ class Object(pygame.sprite.Sprite):
         win.blit(self.image, (self.rect.x - offset_x, self.rect.y))
 
 
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self,x,y,width,height):
-        super().__init__()
-        self.rect = pygame.Rect(x, y, width, height)
-        self.image = pygame.Surface((width, height))
-        self.image.fill((0,255,0))
-        self.mask = pygame.mask.from_surface(self.image)
-        self.vel = 2
-
-        def update(self):
-            self.rect.x += self.vel
-
-        def draw (self, win, offset_x):
-            win.blit(self.image,(self.rect.x - offset_x, self.rect.y))
 
 
 
